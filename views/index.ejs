@@ -1,0 +1,64 @@
+<!-- views/index.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= title %></title>
+    <style>
+      /* Style for the scrollable box */
+      .scrollable-box {
+        width: 100%; /* Set the width of the box as needed */
+        height: 300px; /* Set the height of the box as needed */
+        overflow: auto; /* Enable vertical and horizontal scrolling when content overflows */
+        border: 1px solid #ccc; /* Optional border for visual clarity */
+      }
+
+      /* Style for the unordered list */
+      ul {
+        list-style-type: none; /* Remove default list styles */
+        padding: 0; /* Remove default padding */
+        margin: 0; /* Remove default margin */
+      }
+
+      /* Style for list items (optional) */
+      li {
+        padding: 2px;
+        border-bottom: 1px solid #ddd; /* Optional border between list items */
+        font-size: 0.75em;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>PiCheckr</h1>
+    <p>logs:</p>
+    <div class="scrollable-box" id="scrollableBox">
+      <ul id="stringList">
+        <% for (let i = 0; i < logs.length; i++) { %>
+        <li><%= logs[i] %></li>
+        <% } %>
+      </ul>
+    </div>
+    <script>
+      const scrollableBox = document.getElementById("scrollableBox");
+      scrollableBox.scrollTop = scrollableBox.scrollHeight;
+      function pollForUpdates() {
+        // Perform a GET request to check for updates
+        fetch("/api")
+          .then((response) => response.json())
+          .then((data) => {
+            // Update the logs on the page
+            const stringList = document.getElementById("stringList");
+            stringList.innerHTML = data.logs
+              .map((str) => `<li>${str}</li>`)
+              .join("");
+          })
+          .catch((error) => console.error("Error polling for updates:", error))
+          .finally(() => setTimeout(pollForUpdates, 5000)); // Poll every 5 seconds
+      }
+
+      // Start polling when the page loads
+      window.onload = pollForUpdates;
+    </script>
+  </body>
+</html>
